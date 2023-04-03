@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flatdango</title>
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+<h1> Flatdango </h1>
+<h1>WELCOME TO FLATIRON MOVIE THEATER</h1>
+<h2>Now playing...</h2>
+
+  
+<div id="movies-list"></div>
+
+<main></main>
+
+    
+<script> 
+
+//Get data from the server
+
+fetch('http://localhost:3000/films')
+.then((response) => response.json())
+.then((data) => displayContent(data))
+
+
+function displayContent(content){
+    content.forEach(films => {
+        let main = document.querySelector('main')
+        let list = document.createElement('li')
+        list.innerHTML = 
+        `
+        <img src='${films.poster}'>
+        
+        <p id='items'>
+        Title:'${films.title}'<br>
+        Tickets Available${films.capacity}<br>
+        Showtime:${films.showtime}<br>
+        Duration: ${films.runtime}<br>
+        
+
+        <button id="bt" >Buying Ticket</button>
+       
+        `
+        main.appendChild(list)
+        let button = list.querySelector('button')
+        button.addEventListener('click' , bookTicket)
+        button.style.color=""
+       
+          
+
+    function bookTicket(){
+        if(films.capacity > 10){
+        let remainingTickets = films.capacity  - 1
+        let soldTickets = films.tickets_bought + 1
+        let final = {
+            capacity : remainingTickets,
+            tickets_bought : soldTickets
+        } 
+        
+        // Use patch request to update the number of tickets 
+        fetch(`http://localhost:3000/films/${films.id}` , {
+            method : 'PATCH',
+            headers : {
+                'Content-Type' : 'application/json'
+            },
+            body : JSON.stringify(final)
+        })
+    }else{
+        let soldOut = {
+            capacity : '30'
+        }
+
+        fetch(`http://localhost:3000/films/${films.id}` , {
+            method : 'PATCH',
+            headers : {
+                'Content-Type' : 'application/json'
+            },
+            body : JSON.stringify(soldOut)
+        })
+    }
+}
+})
+}
+
+ </script>
+
+</body>
+</html>
